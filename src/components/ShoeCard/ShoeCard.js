@@ -1,9 +1,9 @@
-import React from 'react';
-import styled from 'styled-components/macro';
+import React from "react";
+import styled from "styled-components/macro";
 
-import { COLORS, WEIGHTS } from '../../constants';
-import { formatPrice, pluralize, isNewShoe } from '../../utils';
-import Spacer from '../Spacer';
+import { COLORS, WEIGHTS } from "../../constants";
+import { formatPrice, pluralize, isNewShoe } from "../../utils";
+import Spacer from "../Spacer";
 
 const ShoeCard = ({
   slug,
@@ -31,28 +31,66 @@ const ShoeCard = ({
       ? 'new-release'
       : 'default'
 
+  const variants = {
+    "on-sale": {
+      bgColor: COLORS.primary,
+      label: "Sale",
+      decoration: "line-through",
+    },
+    "new-release": {
+      bgColor: COLORS.secondary,
+      label: "Just released!",
+      decoration: "none",
+    },
+  };
+
   return (
     <Link href={`/shoe/${slug}`}>
       <Wrapper>
         <ImageWrapper>
           <Image alt="" src={imageSrc} />
+          {variant !== "default" && (
+            <Badge
+              style={{
+                "--bg-color": variants[variant].bgColor,
+              }}
+            >
+              {variants[variant].label}
+            </Badge>
+          )}
         </ImageWrapper>
         <Spacer size={12} />
         <Row>
           <Name>{name}</Name>
-          <Price>{formatPrice(price)}</Price>
+          <Price style={{ "--decoration": variants[variant]?.decoration }}>
+            {formatPrice(price)}
+          </Price>
         </Row>
         <Row>
-          <ColorInfo>{pluralize('Color', numOfColors)}</ColorInfo>
+          <ColorInfo>{pluralize("Color", numOfColors)}</ColorInfo>
+          {variant === "on-sale" && <SalePrice>{formatPrice(price)}</SalePrice>}
         </Row>
       </Wrapper>
     </Link>
   );
 };
 
+const Badge = styled.div`
+  position: absolute;
+  top: 10px;
+  right: -5px;
+  color: ${COLORS.white};
+  font-weight: ${WEIGHTS.bold};
+  padding: 6px 12px;
+  border-radius: 4px;
+  background-color: var(--bg-color);
+`;
+
 const Link = styled.a`
   text-decoration: none;
   color: inherit;
+  flex: 1 1 20%;
+  min-width: 200px;
 `;
 
 const Wrapper = styled.article``;
@@ -61,10 +99,14 @@ const ImageWrapper = styled.div`
   position: relative;
 `;
 
-const Image = styled.img``;
+const Image = styled.img`
+  width: 100%;
+`;
 
 const Row = styled.div`
   font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
 `;
 
 const Name = styled.h3`
@@ -72,7 +114,9 @@ const Name = styled.h3`
   color: ${COLORS.gray[900]};
 `;
 
-const Price = styled.span``;
+const Price = styled.span`
+  text-decoration: var(--decoration);
+`;
 
 const ColorInfo = styled.p`
   color: ${COLORS.gray[700]};
@@ -81,6 +125,7 @@ const ColorInfo = styled.p`
 const SalePrice = styled.span`
   font-weight: ${WEIGHTS.medium};
   color: ${COLORS.primary};
+  display: block;
 `;
 
 export default ShoeCard;
